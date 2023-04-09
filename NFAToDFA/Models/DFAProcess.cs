@@ -48,6 +48,7 @@ namespace NFAToDFA.Models
                             var name = stateDefString.Split(":")[0];
                             states.Add(name, new DFAState(
                                 name,
+                                new List<string>(),
                                 new Dictionary<string, DFAState>(),
                                 stateDefString.ToUpper().Contains("ISFINAL"),
                                 stateDefString.ToUpper().Contains("ISINIT")));

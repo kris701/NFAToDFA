@@ -13,12 +13,17 @@ namespace NFAToDFA.Models
         public bool IsFinalState { get; set; }
         public bool IsInitialState { get; set; }
 
-        public DFAState(string name, Dictionary<string, DFAState> transitions, bool isFinalState = false, bool isInitialState = false)
+        public bool IsComposite { get; set; }
+        public List<string> CompositeName { get; set; }
+
+        public DFAState(string name, List<string> compositeName, Dictionary<string, DFAState> transitions, bool isFinalState = false, bool isInitialState = false, bool isComposite = false)
         {
             Name = name;
+            CompositeName = compositeName;
             Transitions = transitions;
             IsFinalState = isFinalState;
             IsInitialState = isInitialState;
+            IsComposite = isComposite;
         }
 
         public override int GetHashCode()
