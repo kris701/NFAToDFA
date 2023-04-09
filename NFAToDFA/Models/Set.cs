@@ -101,10 +101,9 @@ namespace NFAToDFA.Models
 
         public override string? ToString()
         {
-            string retStr = "(";
+            string retStr = "";
             foreach (var item in Items)
                 retStr += item.ToString();
-            retStr += ")";
             return retStr;
         }
 
