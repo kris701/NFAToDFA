@@ -14,39 +14,30 @@ namespace NFAToDFA.PowersetConstructors
         {
             var states = InitializeDFA(process);
 
-            var emptyState = states.Single(x => x.Key == "ø").Value;
+            var emptyState = states[new Set("ø")];
 
             // Construct transitions
             foreach(var state in states)
             {
-                if (state.Key != "ø")
+                if (state.Key != emptyState.Name)
                 {
-                    if (state.Value.IsComposite)
+                    if (state.Key.Count > 1)
                     {
                         // Handle combined states
                         List<NFAState> nfaStates = new List<NFAState>();
-                        foreach(var stateName in state.Value.CompositeName)
+                        foreach(var stateName in state.Key.Items)
                             if (stateName != "")
-                                nfaStates.Add(process.States[stateName]);
+                                nfaStates.Add(process.States[new Set(stateName)]);
 
                         foreach (var label in process.Labels)
                         {
-                            List<string> targetStates = new List<string>();
+                            Set targetStates = new Set();
                             foreach(var nfaState in nfaStates)
                                 if (nfaState.Transitions.ContainsKey(label))
                                     foreach (var toState in nfaState.Transitions[label])
-                                        if (!targetStates.Contains(toState.Name))
-                                            targetStates.Add(toState.Name);
+                                        targetStates.Add(toState.Name);
 
-                            targetStates.Sort();
-                            string targetStateStr = "";
-                            if (targetStates.Count > 1)
-                                foreach (var targetState in targetStates)
-                                    targetStateStr += $"{targetState}";
-                            else
-                                targetStateStr = $"{targetStates[0]}";
-
-                            states[state.Key].Transitions.Add(label, states[targetStateStr]);
+                            states[state.Key].Transitions.Add(label, states[targetStates]);
                         }
                     }
                     else
@@ -60,18 +51,14 @@ namespace NFAToDFA.PowersetConstructors
                                 transitionCount = nfaState.Transitions[label].Count;
 
                             if (transitionCount == 0)
-                            {
                                 states[state.Key].Transitions.Add(label, emptyState);
-                            }
                             else if (transitionCount == 1)
-                            {
                                 states[state.Key].Transitions.Add(label, states[nfaState.Transitions[label][0].Name]);
-                            }
                             else if (transitionCount > 1)
                             {
-                                string targetName = "";
+                                Set targetName = new Set();
                                 foreach (var targetState in nfaState.Transitions[label])
-                                    targetName += $"{targetState.Name}";
+                                    targetName.Add(targetState.Name);
                                 states[state.Key].Transitions.Add(label, states[targetName]);
                             }
                         }
@@ -88,19 +75,18 @@ namespace NFAToDFA.PowersetConstructors
             return dfa;
         }
 
-        private Dictionary<string, DFAState> InitializeDFA(NFAProcess process)
+        private Dictionary<Set, DFAState> InitializeDFA(NFAProcess process)
         {
-            var states = new Dictionary<string, DFAState>();
+            var states = new Dictionary<Set, DFAState>();
 
             int skip = 0;
             // Construct all possible state combinations
             foreach (var state in process.States.Values)
             {
                 states.Add(
-                    state.Name,
+                    new Set(state.Name),
                     new DFAState(
-                        state.Name,
-                        new List<string>() { state.Name },
+                        new Set(state.Name),
                         new Dictionary<string, DFAState>(),
                         state.IsFinalState,
                         state.IsInitialState));
@@ -110,27 +96,22 @@ namespace NFAToDFA.PowersetConstructors
                     if (state.Name != otherState.Name)
                     {
                         states.Add(
-                            $"{state.Name}{otherState.Name}",
+                            new Set(state.Name, otherState.Name),
                             new DFAState(
-                                $"{state.Name}{otherState.Name}",
-                                new List<string>() { state.Name, otherState.Name },
+                                new Set(state.Name, otherState.Name),
                                 new Dictionary<string, DFAState>(),
-                                state.IsFinalState || otherState.IsFinalState,
-                                false,
-                                true));
+                                state.IsFinalState || otherState.IsFinalState));
                     }
                 }
                 skip++;
             }
 
             // Construct Total State
-            string totalState = "";
-            List<string> totalStateCompositeName = new List<string>();
+            Set totalState = new Set();
             bool isFinal = false;
             foreach (var state in process.States.Values)
             {
-                totalStateCompositeName.Add(state.Name);
-                totalState += $"{state.Name}";
+                totalState.Add(state.Name);
                 if (state.IsFinalState)
                     isFinal = true;
             }
@@ -138,33 +119,30 @@ namespace NFAToDFA.PowersetConstructors
                 totalState,
                 new DFAState(
                     totalState,
-                    totalStateCompositeName,
                     new Dictionary<string, DFAState>(),
-                    isFinal,
-                    false,
-                    true));
+                    isFinal));
 
             // Construct Empty State
-            if (!states.ContainsKey("ø"))
+            Set emptyStateName = new Set("ø");
+            if (!states.ContainsKey(emptyStateName))
             {
                 var emptyState = new DFAState(
-                        "ø",
-                        new List<string>() { "ø" },
+                        emptyStateName,
                         new Dictionary<string, DFAState>());
                 foreach (var label in process.Labels)
                     emptyState.Transitions.Add(label, emptyState);
                 states.Add(
-                    "ø",
+                    emptyStateName,
                     emptyState);
             }
 
             return states;
         }
 
-        private Dictionary<string, DFAState> RemoveUncreachableStates(Dictionary<string, DFAState> states)
+        private Dictionary<Set, DFAState> RemoveUncreachableStates(Dictionary<Set, DFAState> states)
         {
-            Dictionary<string, DFAState> reachableStates = new Dictionary<string, DFAState>();
-            List<string> initialStates = new List<string>();
+            Dictionary<Set, DFAState> reachableStates = new Dictionary<Set, DFAState>();
+            List<Set> initialStates = new List<Set>();
             foreach (var state in states)
             {
                 if (state.Value.IsInitialState)
@@ -181,7 +159,7 @@ namespace NFAToDFA.PowersetConstructors
                 {
                     if (state.Key != initialState)
                     {
-                        if (CanReach(states, new List<string>(), initialState, state.Key))
+                        if (CanReach(states, new List<Set>(), initialState, state.Key))
                         {
                             isReachable = true;
                             break;
@@ -195,7 +173,7 @@ namespace NFAToDFA.PowersetConstructors
             return reachableStates;
         }
 
-        private bool CanReach(Dictionary<string, DFAState> states, List<string> visited, string from, string to)
+        private bool CanReach(Dictionary<Set, DFAState> states, List<Set> visited, Set from, Set to)
         {
             if (from == to)
                 return true;

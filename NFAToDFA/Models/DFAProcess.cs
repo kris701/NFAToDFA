@@ -9,9 +9,9 @@ namespace NFAToDFA.Models
     public class DFAProcess
     {
         public List<string> Labels { get; internal set; }
-        public Dictionary<string, DFAState> States { get; internal set; }
+        public Dictionary<Set, DFAState> States { get; internal set; }
 
-        public DFAProcess(Dictionary<string, DFAState> states, List<string> labels)
+        public DFAProcess(Dictionary<Set, DFAState> states, List<string> labels)
         {
             States = states;
             Labels = labels;
@@ -20,13 +20,13 @@ namespace NFAToDFA.Models
         public DFAProcess(string file)
         {
             Labels = new List<string>();
-            States = new Dictionary<string, DFAState>();
+            States = new Dictionary<Set, DFAState>();
             Read(file);
         }
 
         public void Read(string file)
         {
-            var states = new Dictionary<string, DFAState>();
+            var states = new Dictionary<Set, DFAState>();
             var labels = new List<string>();
 
             var lines = File.ReadAllLines(file);
@@ -46,9 +46,8 @@ namespace NFAToDFA.Models
                         {
                             var stateDefString = toLowerLine.Replace("[", "").Replace("]", "").Replace(" ", "");
                             var name = stateDefString.Split(":")[0];
-                            states.Add(name, new DFAState(
-                                name,
-                                new List<string>(),
+                            states.Add(new Set(name), new DFAState(
+                                new Set(name),
                                 new Dictionary<string, DFAState>(),
                                 stateDefString.ToUpper().Contains("ISFINAL"),
                                 stateDefString.ToUpper().Contains("ISINIT")));
@@ -57,9 +56,9 @@ namespace NFAToDFA.Models
                         {
                             var transitionString = toLowerLine.Replace("(", "").Replace(")", "");
                             var transitionSteps = transitionString.Split(" ");
-                            var fromState = transitionSteps[0];
+                            var fromState = new Set(transitionSteps[0]);
                             var label = transitionSteps[1];
-                            var toState = transitionSteps[2];
+                            var toState = new Set(transitionSteps[2]);
 
                             states[fromState].Transitions.Add(label, states[toState]);
                         }
