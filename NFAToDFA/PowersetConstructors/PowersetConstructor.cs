@@ -1,6 +1,7 @@
 ﻿using NFAToDFA.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -115,28 +116,32 @@ namespace NFAToDFA.PowersetConstructors
                 if (state.IsFinalState)
                     isFinal = true;
             }
-            states.Add(
-                totalState,
-                new DFAState(
+            if (!states.ContainsKey(totalState))
+                states.Add(
                     totalState,
-                    new Dictionary<string, DFAState>(),
-                    isFinal));
+                    new DFAState(
+                        totalState,
+                        new Dictionary<string, DFAState>(),
+                        isFinal));
 
             // Construct Empty State
             Set emptyStateName = new Set("ø");
             if (!states.ContainsKey(emptyStateName))
-            {
-                var emptyState = new DFAState(
-                        emptyStateName,
-                        new Dictionary<string, DFAState>());
-                foreach (var label in process.Labels)
-                    emptyState.Transitions.Add(label, emptyState);
                 states.Add(
                     emptyStateName,
-                    emptyState);
-            }
+                    GenerateEmptyState(process));
 
             return states;
+        }
+
+        private DFAState GenerateEmptyState(NFAProcess process)
+        {
+            var emptyState = new DFAState(
+                    new Set("ø"),
+                    new Dictionary<string, DFAState>());
+            foreach (var label in process.Labels)
+                emptyState.Transitions.Add(label, emptyState);
+            return emptyState;
         }
 
         private Dictionary<Set, DFAState> RemoveUncreachableStates(Dictionary<Set, DFAState> states)
