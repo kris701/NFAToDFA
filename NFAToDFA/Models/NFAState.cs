@@ -9,11 +9,11 @@ namespace NFAToDFA.Models
     public class NFAState
     {
         public string Name { get; set; }
-        public List<Transition> Transitions { get; set; }
+        public Dictionary<string, List<NFAState>> Transitions { get; set; }
         public bool IsFinalState { get; set; }
         public bool IsInitialState { get; set; }
 
-        public NFAState(string name, List<Transition> transitions, bool isFinalState = false, bool isInitialState = false)
+        public NFAState(string name, Dictionary<string, List<NFAState>> transitions, bool isFinalState = false, bool isInitialState = false)
         {
             Name = name;
             Transitions = transitions;

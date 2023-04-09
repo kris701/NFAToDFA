@@ -48,7 +48,7 @@ namespace NFAToDFA.Models
                             var name = stateDefString.Split(":")[0];
                             states.Add(name, new NFAState(
                                 name,
-                                new List<Transition>(),
+                                new Dictionary<string, List<NFAState>>(),
                                 stateDefString.ToUpper().Contains("ISFINAL"),
                                 stateDefString.ToUpper().Contains("ISINIT")));
                         }
@@ -60,7 +60,10 @@ namespace NFAToDFA.Models
                             var label = transitionSteps[1];
                             var toState = transitionSteps[2];
 
-                            states[fromState].Transitions.Add(new Transition(label, states[toState]));
+                            if (states[fromState].Transitions.ContainsKey(label))
+                                states[fromState].Transitions[label].Add(states[toState]);
+                            else
+                                states[fromState].Transitions.Add(label, new List<NFAState>() { states[toState] });
                         }
                     }
                 }
@@ -98,8 +101,9 @@ namespace NFAToDFA.Models
 
             // Transitions
             foreach (var state in States)
-                foreach (var transition in state.Transitions)
-                    outStr += $"{state.Name} ({transition.Label}) {transition.State.Name}{Environment.NewLine}";
+                foreach (var label in state.Transitions.Keys)
+                    foreach(var toState in state.Transitions[label])
+                        outStr += $"{state.Name} ({label}) {toState.Name}{Environment.NewLine}";
 
             // Output file
             if (File.Exists(file))
@@ -111,15 +115,16 @@ namespace NFAToDFA.Models
         {
             // Label Transition Check
             foreach (var state in States)
-                foreach (var transition in state.Transitions)
-                    if (!Labels.Contains(transition.Label))
+                foreach (var label in state.Transitions.Keys)
+                    if (!Labels.Contains(label))
                         throw new Exception("Transitions contain labels that was not defined!");
 
             // Transition Jump Check
             foreach (var state in States)
-                foreach (var transition in state.Transitions)
-                    if (!States.Contains(transition.State))
-                        throw new Exception("A transition is missing a target state!");
+                foreach (var label in state.Transitions.Keys)
+                    foreach(var toState in state.Transitions[label])
+                        if (!States.Contains(toState))
+                            throw new Exception("A transition is missing a target state!");
 
         }
     }

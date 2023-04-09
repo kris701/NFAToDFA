@@ -33,18 +33,11 @@ namespace NFAToDFA.PowersetConstructors
                         {
                             List<string> targetStates = new List<string>();
                             foreach(var nfaState in nfaStates)
-                            {
-                                foreach(var transition in nfaState.Transitions)
-                                {
-                                    if (transition.Label == label)
-                                    {
-                                        if (!targetStates.Contains(transition.State.Name))
-                                        {
-                                            targetStates.Add(transition.State.Name);
-                                        }
-                                    }
-                                }
-                            }
+                                if (nfaState.Transitions.ContainsKey(label))
+                                    foreach (var toState in nfaState.Transitions[label])
+                                        if (!targetStates.Contains(toState.Name))
+                                            targetStates.Add(toState.Name);
+
                             targetStates.Sort();
                             string targetStateStr = "";
                             if (targetStates.Count > 1)
@@ -62,20 +55,24 @@ namespace NFAToDFA.PowersetConstructors
                         var nfaState = process.States.Single(x => x.Name == state.Key);
                         foreach (var label in process.Labels)
                         {
-                            if (nfaState.Transitions.Count(x => x.Label == label) == 1)
-                            {
-                                states[state.Key].Transitions.Add(label, states[nfaState.Transitions.Single(x => x.Label == label).State.Name]);
-                            }
-                            else if (nfaState.Transitions.Count(x => x.Label == label) > 1)
-                            {
-                                string targetName = "";
-                                foreach (var targetState in nfaState.Transitions.FindAll(x => x.Label == label))
-                                    targetName += $"{targetState.State.Name}";
-                                states[state.Key].Transitions.Add(label, states[targetName]);
-                            }
-                            else
+                            int transitionCount = 0;
+                            if (nfaState.Transitions.ContainsKey(label))
+                                transitionCount = nfaState.Transitions[label].Count;
+
+                            if (transitionCount == 0)
                             {
                                 states[state.Key].Transitions.Add(label, emptyState);
+                            }
+                            else if (transitionCount == 1)
+                            {
+                                states[state.Key].Transitions.Add(label, states[nfaState.Transitions[label][0].Name]);
+                            }
+                            else if (transitionCount > 1)
+                            {
+                                string targetName = "";
+                                foreach (var targetState in nfaState.Transitions[label])
+                                    targetName += $"{targetState.Name}";
+                                states[state.Key].Transitions.Add(label, states[targetName]);
                             }
                         }
                     }
