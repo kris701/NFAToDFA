@@ -9,9 +9,9 @@ namespace NFAToDFA.Models
     public class NFAProcess
     {
         public List<string> Labels { get; internal set; }
-        public List<NFAState> States { get; internal set; }
+        public Dictionary<string, NFAState> States { get; internal set; }
 
-        public NFAProcess(List<NFAState> states, List<string> labels)
+        public NFAProcess(Dictionary<string, NFAState> states, List<string> labels)
         {
             States = states;
             Labels = labels;
@@ -20,7 +20,7 @@ namespace NFAToDFA.Models
         public NFAProcess(string file)
         {
             Labels = new List<string>();
-            States = new List<NFAState>();
+            States = new Dictionary<string, NFAState>();
             Read(file);
         }
 
@@ -70,7 +70,7 @@ namespace NFAToDFA.Models
             }
 
             Labels = labels;
-            States = states.Values.ToList();
+            States = states;
 
             Validate();
         }
@@ -89,7 +89,7 @@ namespace NFAToDFA.Models
             outStr += $"}}{Environment.NewLine}";
 
             // State Declarations
-            foreach (var state in States)
+            foreach (var state in States.Values)
             {
                 outStr += $"[{state.Name}";
                 if (state.IsFinalState)
@@ -100,7 +100,7 @@ namespace NFAToDFA.Models
             }
 
             // Transitions
-            foreach (var state in States)
+            foreach (var state in States.Values)
                 foreach (var label in state.Transitions.Keys)
                     foreach(var toState in state.Transitions[label])
                         outStr += $"{state.Name} ({label}) {toState.Name}{Environment.NewLine}";
@@ -114,16 +114,16 @@ namespace NFAToDFA.Models
         public void Validate()
         {
             // Label Transition Check
-            foreach (var state in States)
+            foreach (var state in States.Values)
                 foreach (var label in state.Transitions.Keys)
                     if (!Labels.Contains(label))
                         throw new Exception("Transitions contain labels that was not defined!");
 
             // Transition Jump Check
-            foreach (var state in States)
+            foreach (var state in States.Values)
                 foreach (var label in state.Transitions.Keys)
                     foreach(var toState in state.Transitions[label])
-                        if (!States.Contains(toState))
+                        if (!States.ContainsKey(toState.Name))
                             throw new Exception("A transition is missing a target state!");
 
         }

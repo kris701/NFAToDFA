@@ -48,6 +48,7 @@ namespace NFAToDFA
             dfa.Write(opts.DFAFile);
             Console.WriteLine("Done!");
             Console.WriteLine($"The NFA had {nfa.States.Count} states, and the DFA has {dfa.States.Count} states");
+
         }
 
         static void HandleParseError(IEnumerable<Error> errs)

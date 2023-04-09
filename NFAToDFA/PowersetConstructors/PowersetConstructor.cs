@@ -27,7 +27,7 @@ namespace NFAToDFA.PowersetConstructors
                         List<NFAState> nfaStates = new List<NFAState>();
                         foreach(var stateName in state.Value.CompositeName)
                             if (stateName != "")
-                                nfaStates.Add(process.States.Single(x => x.Name == stateName));
+                                nfaStates.Add(process.States[stateName]);
 
                         foreach (var label in process.Labels)
                         {
@@ -52,7 +52,7 @@ namespace NFAToDFA.PowersetConstructors
                     else
                     {
                         // Handle single states
-                        var nfaState = process.States.Single(x => x.Name == state.Key);
+                        var nfaState = process.States[state.Key];
                         foreach (var label in process.Labels)
                         {
                             int transitionCount = 0;
@@ -81,7 +81,7 @@ namespace NFAToDFA.PowersetConstructors
 
             states = RemoveUncreachableStates(states);
 
-            var dfa = new DFAProcess(states.Values.ToList(), process.Labels);
+            var dfa = new DFAProcess(states, process.Labels);
 
             dfa.Validate();
 
@@ -94,7 +94,7 @@ namespace NFAToDFA.PowersetConstructors
 
             int skip = 0;
             // Construct all possible state combinations
-            foreach (var state in process.States)
+            foreach (var state in process.States.Values)
             {
                 states.Add(
                     state.Name,
@@ -105,7 +105,7 @@ namespace NFAToDFA.PowersetConstructors
                         state.IsFinalState,
                         state.IsInitialState));
 
-                foreach (var otherState in process.States.Skip(skip))
+                foreach (var otherState in process.States.Values.Skip(skip))
                 {
                     if (state.Name != otherState.Name)
                     {
@@ -127,7 +127,7 @@ namespace NFAToDFA.PowersetConstructors
             string totalState = "";
             List<string> totalStateCompositeName = new List<string>();
             bool isFinal = false;
-            foreach (var state in process.States)
+            foreach (var state in process.States.Values)
             {
                 totalStateCompositeName.Add(state.Name);
                 totalState += $"{state.Name}";

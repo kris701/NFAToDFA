@@ -9,9 +9,9 @@ namespace NFAToDFA.Models
     public class DFAProcess
     {
         public List<string> Labels { get; internal set; }
-        public List<DFAState> States { get; internal set; }
+        public Dictionary<string, DFAState> States { get; internal set; }
 
-        public DFAProcess(List<DFAState> states, List<string> labels)
+        public DFAProcess(Dictionary<string, DFAState> states, List<string> labels)
         {
             States = states;
             Labels = labels;
@@ -20,7 +20,7 @@ namespace NFAToDFA.Models
         public DFAProcess(string file)
         {
             Labels = new List<string>();
-            States = new List<DFAState>();
+            States = new Dictionary<string, DFAState>();
             Read(file);
         }
 
@@ -68,7 +68,7 @@ namespace NFAToDFA.Models
             }
 
             Labels = labels;
-            States = states.Values.ToList();
+            States = states;
 
             Validate();
         }
@@ -87,7 +87,7 @@ namespace NFAToDFA.Models
             outStr += $"}}{Environment.NewLine}";
 
             // State Declarations
-            foreach(var state in States)
+            foreach(var state in States.Values)
             {
                 outStr += $"[{state.Name}";
                 if (state.IsFinalState)
@@ -98,7 +98,7 @@ namespace NFAToDFA.Models
             }
 
             // Transitions
-            foreach(var state in States)
+            foreach(var state in States.Values)
                 foreach(var label in Labels)
                     outStr += $"{state.Name} ({label}) {state.Transitions[label].Name}{Environment.NewLine}";
 
@@ -111,20 +111,20 @@ namespace NFAToDFA.Models
         public void Validate()
         {
             // Label Transition Check
-            foreach (var state in States)
+            foreach (var state in States.Values)
                 foreach (var key in state.Transitions.Keys)
                     if (!Labels.Contains(key))
                         throw new Exception("Transitions contain labels that was not defined!");
 
             // DFA Transition Check
-            foreach (var state in States)
+            foreach (var state in States.Values)
                 if (Labels.Count != state.Transitions.Keys.Count)
                     throw new Exception("All states must have all labels as transitions!");
 
             // Transition Jump Check
-            foreach (var state in States)
+            foreach (var state in States.Values)
                 foreach (var key in state.Transitions.Keys)
-                    if (!States.Contains(state.Transitions[key]))
+                    if (!States.ContainsKey(state.Transitions[key].Name))
                         throw new Exception("A transition is missing a target state!");
 
         }
