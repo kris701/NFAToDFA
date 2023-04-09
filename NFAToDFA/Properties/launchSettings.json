@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NFAToDFA": {
+      "commandName": "Project",
+      "commandLineArgs": "--nfa Examples/example1.nfa\r\n--dfa test.dfa"
+    }
+  }
+}
