@@ -108,7 +108,7 @@ namespace NFAToDFA.Models
             File.WriteAllText(file, outStr);
         }
 
-        public void Validate()
+        public bool Validate()
         {
             // Label Transition Check
             foreach (var state in States.Values)
@@ -126,7 +126,7 @@ namespace NFAToDFA.Models
                 foreach (var key in state.Transitions.Keys)
                     if (!States.ContainsKey(state.Transitions[key].Name))
                         throw new Exception("A transition is missing a target state!");
-
+            return true;
         }
     }
 }

@@ -2,7 +2,6 @@
 using CommandLine.Text;
 using NFAToDFA.Models;
 using NFAToDFA.PowersetConstructors;
-using System.Runtime.InteropServices;
 
 namespace NFAToDFA
 {
@@ -47,8 +46,43 @@ namespace NFAToDFA
             DFAProcess dfa = constructor.ConstructDFA(nfa);
             dfa.Write(opts.DFAFile);
             Console.WriteLine("Done!");
-            Console.WriteLine($"The NFA had {nfa.States.Count} states, and the DFA has {dfa.States.Count} states");
+            Console.WriteLine();
 
+            Console.WriteLine("Result info:");
+            Console.Write("The NFA have ");
+            WriteColor($"{nfa.States.Count}", ConsoleColor.Blue);
+            Console.WriteLine(" states.");
+            Console.Write("Is the NFA valid?: ");
+            if (nfa.Validate())
+                WriteLineColor("YES", ConsoleColor.Green);
+            else
+                WriteLineColor("NO", ConsoleColor.Red);
+
+            Console.Write("The DFA have ");
+            WriteColor($"{dfa.States.Count}", ConsoleColor.Blue);
+            Console.WriteLine(" states.");
+            Console.Write("Is the DFA valid?: ");
+            if (dfa.Validate())
+                WriteLineColor("YES", ConsoleColor.Green);
+            else
+                WriteLineColor("NO", ConsoleColor.Red);
+
+            Console.WriteLine();
+            Console.WriteLine($"The resulting DFA was written to: {opts.DFAFile}");
+        }
+
+        static void WriteLineColor(string text, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
+        }
+
+        static void WriteColor(string text, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ResetColor();
         }
 
         static void HandleParseError(IEnumerable<Error> errs)
