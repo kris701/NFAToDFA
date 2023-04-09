@@ -8,10 +8,6 @@ namespace NFAToDFA
 {
     internal class Program
     {
-        private static ConsoleColor InitStateColor = ConsoleColor.Green;
-        private static ConsoleColor FinalStateColor = ConsoleColor.Red;
-        private static ConsoleColor BothStateColor = ConsoleColor.Yellow;
-
         public class Options
         {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
