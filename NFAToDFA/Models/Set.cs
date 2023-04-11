@@ -18,6 +18,14 @@ namespace NFAToDFA.Models
             Items = items;
         }
 
+                public Set(string[] items)
+        {
+            Items = new HashSet<string>();
+            foreach(var item in items)
+                if (item != "")
+                    Items.Add(item);
+        }
+
         public Set(Set set2)
         {
             Items = new HashSet<string>();
@@ -101,9 +109,16 @@ namespace NFAToDFA.Models
 
         public override string? ToString()
         {
-            string retStr = "";
+            string retStr = "(";
+            int counter = 0;
             foreach (var item in Items)
+            {
                 retStr += item.ToString();
+                if (counter != Items.Count - 1)
+                    retStr += ",";
+                counter++;
+            }
+            retStr += ")";
             return retStr;
         }
 

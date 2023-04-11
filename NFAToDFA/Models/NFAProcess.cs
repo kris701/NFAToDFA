@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,33 +38,32 @@ namespace NFAToDFA.Models
                     if (!line.Trim().StartsWith("//"))
                     {
                         var toLowerLine = line.ToLower().Trim();
-                        if (toLowerLine.Contains("{") && toLowerLine.Contains("}"))
+                        if (toLowerLine.StartsWith("{"))
                         {
                             var labelString = toLowerLine.Replace("{", "").Replace("}", "").Replace(" ", "");
                             labels = labelString.Split(",").ToList();
                         }
-                        else if (toLowerLine.Contains("[") && toLowerLine.Contains("]"))
+                        else if (toLowerLine.StartsWith("["))
                         {
                             var stateDefString = toLowerLine.Replace("[", "").Replace("]", "").Replace(" ", "");
-                            var name = stateDefString.Split(":")[0];
-                            states.Add(new Set(name), new NFAState(
-                                new Set(name),
+                            var nameStr = stateDefString.Split(":")[0].Replace("(", "").Replace(")", "").Split(",");
+                            states.Add(new Set(nameStr), new NFAState(
+                                new Set(nameStr),
                                 new Dictionary<string, List<NFAState>>(),
                                 stateDefString.ToUpper().Contains("ISFINAL"),
                                 stateDefString.ToUpper().Contains("ISINIT")));
                         }
-                        else if (toLowerLine.Contains("(") && toLowerLine.Contains(")"))
+                        else
                         {
-                            var transitionString = toLowerLine.Replace("(", "").Replace(")", "");
-                            var transitionSteps = transitionString.Split(" ");
-                            var fromState = new Set(transitionSteps[0]);
-                            var label = transitionSteps[1];
-                            var toState = new Set(transitionSteps[2]);
+                            var splitStr = toLowerLine.Split(" ");
+                            var left = splitStr[0].Replace("(", "").Replace(")", "").Split(",");
+                            string middle = splitStr[1];
+                            var right = splitStr[2].Replace("(", "").Replace(")", "").Split(",");
 
-                            if (states[fromState].Transitions.ContainsKey(label))
-                                states[fromState].Transitions[label].Add(states[toState]);
+                            if (states[new Set(left)].Transitions.ContainsKey(middle))
+                                states[new Set(left)].Transitions[middle].Add(states[new Set(right)]);
                             else
-                                states[fromState].Transitions.Add(label, new List<NFAState>() { states[toState] });
+                                states[new Set(left)].Transitions.Add(middle, new List<NFAState>() { states[new Set(right)] });
                         }
                     }
                 }
@@ -103,7 +103,7 @@ namespace NFAToDFA.Models
             foreach (var state in States.Values)
                 foreach (var label in state.Transitions.Keys)
                     foreach(var toState in state.Transitions[label])
-                        outStr += $"{state.Name} ({label}) {toState.Name}{Environment.NewLine}";
+                        outStr += $"{state.Name} {label} {toState.Name}{Environment.NewLine}";
 
             // Output file
             if (File.Exists(file))
