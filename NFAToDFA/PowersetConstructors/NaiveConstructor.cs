@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NFAToDFA.PowersetConstructors
 {
-    public class PowersetConstructor : IPowersetConstructor
+    public class NaiveConstructor : IPowersetConstructor
     {
         public DFAProcess ConstructDFA(NFAProcess process)
         {

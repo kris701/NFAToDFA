@@ -1,0 +1,17 @@
+﻿// Label declaration
+{a,b}
+
+// State declaration, as well as if its a init state or a final state or both
+[t0:IsInit]
+[t1]
+[t2:IsFinal]
+
+// Transitions
+t0 a t1
+
+t1 b t0
+t1 a t1
+t1 a t2
+
+t2 a t2
+t2 b t2

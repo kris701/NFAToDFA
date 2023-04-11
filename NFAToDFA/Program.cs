@@ -42,7 +42,7 @@ namespace NFAToDFA
 
             Console.WriteLine("Converting NFA to DFA...");
             NFAProcess nfa = new NFAProcess(opts.NFAFile);
-            IPowersetConstructor constructor = new PowersetConstructor();
+            IPowersetConstructor constructor = new NaiveConstructor();
             DFAProcess dfa = constructor.ConstructDFA(nfa);
             dfa.Write(opts.DFAFile);
             Console.WriteLine("Done!");
