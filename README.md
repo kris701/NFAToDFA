@@ -18,10 +18,10 @@ The label declarations is simply a set of what labels are available in the proce
 * `{a, b, c, ...}`
 
 The state declarations consists of max three parts and minimum one:
-* `[StateName:IsInit:IsFinal]`
+* `[(StateName):IsInit:IsFinal]`
 The `IsInit` and `IsFinal` is optional.
 
 Lastly, there is the transitions. These describe how to jump from state to state through a label:
-* `StateName (LabelName) StateName`
+* `(StateName) LabelName (StateName)`
 
-![image](https://user-images.githubusercontent.com/22596587/230786159-4ff67f12-0b75-40b5-9e8c-3cb0d4f5c1d1.png)
+![image](https://user-images.githubusercontent.com/22596587/231118394-e9988019-cb56-462b-aa55-fc922ba4386e.png)
