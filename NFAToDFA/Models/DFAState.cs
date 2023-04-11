@@ -8,12 +8,20 @@ namespace NFAToDFA.Models
 {
     public class DFAState
     {
-        public Set Name { get; set; }
+        public Set<string> Name { get; set; }
         public Dictionary<string, DFAState> Transitions { get; set; }
         public bool IsFinalState { get; set; }
         public bool IsInitialState { get; set; }
 
-        public DFAState(Set name, Dictionary<string, DFAState> transitions, bool isFinalState = false, bool isInitialState = false)
+        public DFAState(Set<string> name)
+        {
+            Name = name;
+            Transitions = new Dictionary<string, DFAState>();
+            IsFinalState = false;
+            IsInitialState = false;
+        }
+
+        public DFAState(Set<string> name, Dictionary<string, DFAState> transitions, bool isFinalState = false, bool isInitialState = false)
         {
             Name = name;
             Transitions = transitions;

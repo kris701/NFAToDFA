@@ -10,9 +10,9 @@ namespace NFAToDFA.Models
     public class NFAProcess
     {
         public List<string> Labels { get; internal set; }
-        public Dictionary<Set, NFAState> States { get; internal set; }
+        public Dictionary<Set<string>, NFAState> States { get; internal set; }
 
-        public NFAProcess(Dictionary<Set, NFAState> states, List<string> labels)
+        public NFAProcess(Dictionary<Set<string>, NFAState> states, List<string> labels)
         {
             States = states;
             Labels = labels;
@@ -21,13 +21,13 @@ namespace NFAToDFA.Models
         public NFAProcess(string file)
         {
             Labels = new List<string>();
-            States = new Dictionary<Set, NFAState>();
+            States = new Dictionary<Set<string>, NFAState>();
             Read(file);
         }
 
         public void Read(string file)
         {
-            var states = new Dictionary<Set, NFAState>();
+            var states = new Dictionary<Set<string>, NFAState>();
             var labels = new List<string>();
 
             var lines = File.ReadAllLines(file);
@@ -47,8 +47,8 @@ namespace NFAToDFA.Models
                         {
                             var stateDefString = toLowerLine.Replace("[", "").Replace("]", "").Replace(" ", "");
                             var nameStr = stateDefString.Split(":")[0].Replace("(", "").Replace(")", "").Split(",");
-                            states.Add(new Set(nameStr), new NFAState(
-                                new Set(nameStr),
+                            states.Add(new Set<string>(nameStr), new NFAState(
+                                new Set<string>(nameStr),
                                 new Dictionary<string, List<NFAState>>(),
                                 stateDefString.ToUpper().Contains("ISFINAL"),
                                 stateDefString.ToUpper().Contains("ISINIT")));
@@ -60,10 +60,10 @@ namespace NFAToDFA.Models
                             string middle = splitStr[1];
                             var right = splitStr[2].Replace("(", "").Replace(")", "").Split(",");
 
-                            if (states[new Set(left)].Transitions.ContainsKey(middle))
-                                states[new Set(left)].Transitions[middle].Add(states[new Set(right)]);
+                            if (states[new Set<string>(left)].Transitions.ContainsKey(middle))
+                                states[new Set<string>(left)].Transitions[middle].Add(states[new Set<string>(right)]);
                             else
-                                states[new Set(left)].Transitions.Add(middle, new List<NFAState>() { states[new Set(right)] });
+                                states[new Set<string>(left)].Transitions.Add(middle, new List<NFAState>() { states[new Set<string>(right)] });
                         }
                     }
                 }

@@ -6,45 +6,44 @@ using System.Threading.Tasks;
 
 namespace NFAToDFA.Models
 {
-    public class Set : IEquatable<object>
+    public class Set<T> : IEquatable<object> where T : notnull
     {
-        public HashSet<string> Items { get; set; }
+        public HashSet<T> Items { get; set; }
 
         public int Count => Items.Count;
 
         #region Constructors
-        public Set(HashSet<string> items)
+        public Set(HashSet<T> items)
         {
             Items = items;
         }
 
-                public Set(string[] items)
+        public Set(T[] items)
         {
-            Items = new HashSet<string>();
-            foreach(var item in items)
-                if (item != "")
-                    Items.Add(item);
+            Items = new HashSet<T>();
+            foreach (var item in items)
+                Items.Add(item);
         }
 
-        public Set(Set set2)
+        public Set(Set<T> set2)
         {
-            Items = new HashSet<string>();
+            Items = new HashSet<T>();
             foreach (var item in set2.Items)
                 Items.Add(item);
         }
 
-        public Set(Set set2, Set set3)
+        public Set(Set<T> set2, Set<T> set3)
         {
-            Items = new HashSet<string>();
-            foreach(var item in set2.Items)
+            Items = new HashSet<T>();
+            foreach (var item in set2.Items)
                 Items.Add(item);
             foreach (var item in set3.Items)
                 Items.Add(item);
         }
 
-        public Set(Set set2, Set set3, Set set4)
+        public Set(Set<T> set2, Set<T> set3, Set<T> set4)
         {
-            Items = new HashSet<string>();
+            Items = new HashSet<T>();
             foreach (var item in set2.Items)
                 Items.Add(item);
             foreach (var item in set3.Items)
@@ -55,25 +54,25 @@ namespace NFAToDFA.Models
 
         public Set()
         {
-            Items = new HashSet<string>();
+            Items = new HashSet<T>();
         }
 
-        public Set(string item1)
+        public Set(T item1)
         {
-            Items = new HashSet<string>();
+            Items = new HashSet<T>();
             Items.Add(item1);
         }
 
-        public Set(string item1, string item2)
+        public Set(T item1, T item2)
         {
-            Items = new HashSet<string>();
+            Items = new HashSet<T>();
             Items.Add(item1);
             Items.Add(item2);
         }
 
-        public Set(string item1, string item2, string item3)
+        public Set(T item1, T item2, T item3)
         {
-            Items = new HashSet<string>();
+            Items = new HashSet<T>();
             Items.Add(item1);
             Items.Add(item2);
             Items.Add(item3);
@@ -82,12 +81,12 @@ namespace NFAToDFA.Models
 
         public override bool Equals(object? obj)
         {
-            if (obj is Set set2)
+            if (obj is Set<T> set2)
                 return GetHashCode() == set2.GetHashCode();
             return false;
         }
 
-        public static bool operator ==(Set obj1, Set obj2)
+        public static bool operator ==(Set<T> obj1, Set<T> obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -97,7 +96,7 @@ namespace NFAToDFA.Models
                 return false;
             return obj1.Equals(obj2);
         }
-        public static bool operator !=(Set obj1, Set obj2) => !(obj1 == obj2);
+        public static bool operator !=(Set<T> obj1, Set<T> obj2) => !(obj1 == obj2);
 
         public override int GetHashCode()
         {
@@ -122,14 +121,14 @@ namespace NFAToDFA.Models
             return retStr;
         }
 
-        public void Add(string item)
+        public void Add(T item)
         {
             Items.Add(item);
         }
 
-        public void Add(Set set)
+        public void Add(Set<T> set)
         {
-            foreach(var item in set.Items)
+            foreach (var item in set.Items)
                 Items.Add(item);
         }
     }

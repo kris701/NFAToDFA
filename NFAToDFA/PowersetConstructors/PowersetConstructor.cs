@@ -15,7 +15,7 @@ namespace NFAToDFA.PowersetConstructors
         {
             var states = InitializeDFA(process);
 
-            var emptyState = states[new Set("ø")];
+            var emptyState = states[new Set<string>("ø")];
 
             // Construct transitions
             foreach(var state in states)
@@ -28,11 +28,11 @@ namespace NFAToDFA.PowersetConstructors
                         List<NFAState> nfaStates = new List<NFAState>();
                         foreach(var stateName in state.Key.Items)
                             if (stateName != "")
-                                nfaStates.Add(process.States[new Set(stateName)]);
+                                nfaStates.Add(process.States[new Set<string>(stateName)]);
 
                         foreach (var label in process.Labels)
                         {
-                            Set targetStates = new Set();
+                            Set<string> targetStates = new Set<string>();
                             foreach(var nfaState in nfaStates)
                                 if (nfaState.Transitions.ContainsKey(label))
                                     foreach (var toState in nfaState.Transitions[label])
@@ -57,7 +57,7 @@ namespace NFAToDFA.PowersetConstructors
                                 states[state.Key].Transitions.Add(label, states[nfaState.Transitions[label][0].Name]);
                             else if (transitionCount > 1)
                             {
-                                Set targetName = new Set();
+                                Set<string> targetName = new Set<string>();
                                 foreach (var targetState in nfaState.Transitions[label])
                                     targetName.Add(targetState.Name);
                                 states[state.Key].Transitions.Add(label, states[targetName]);
@@ -76,18 +76,18 @@ namespace NFAToDFA.PowersetConstructors
             return dfa;
         }
 
-        private Dictionary<Set, DFAState> InitializeDFA(NFAProcess process)
+        private Dictionary<Set<string>, DFAState> InitializeDFA(NFAProcess process)
         {
-            var states = new Dictionary<Set, DFAState>();
+            var states = new Dictionary<Set<string>, DFAState>();
 
             int skip = 0;
             // Construct all possible state combinations
             foreach (var state in process.States.Values)
             {
                 states.Add(
-                    new Set(state.Name),
+                    new Set<string>(state.Name),
                     new DFAState(
-                        new Set(state.Name),
+                        new Set<string>(state.Name),
                         new Dictionary<string, DFAState>(),
                         state.IsFinalState,
                         state.IsInitialState));
@@ -97,9 +97,9 @@ namespace NFAToDFA.PowersetConstructors
                     if (state.Name != otherState.Name)
                     {
                         states.Add(
-                            new Set(state.Name, otherState.Name),
+                            new Set<string>(state.Name, otherState.Name),
                             new DFAState(
-                                new Set(state.Name, otherState.Name),
+                                new Set<string>(state.Name, otherState.Name),
                                 new Dictionary<string, DFAState>(),
                                 state.IsFinalState || otherState.IsFinalState));
                     }
@@ -108,7 +108,7 @@ namespace NFAToDFA.PowersetConstructors
             }
 
             // Construct Total State
-            Set totalState = new Set();
+            Set<string> totalState = new Set<string>();
             bool isFinal = false;
             foreach (var state in process.States.Values)
             {
@@ -125,7 +125,7 @@ namespace NFAToDFA.PowersetConstructors
                         isFinal));
 
             // Construct Empty State
-            Set emptyStateName = new Set("ø");
+            Set<string> emptyStateName = new Set<string>("ø");
             if (!states.ContainsKey(emptyStateName))
                 states.Add(
                     emptyStateName,
@@ -136,18 +136,16 @@ namespace NFAToDFA.PowersetConstructors
 
         private DFAState GenerateEmptyState(NFAProcess process)
         {
-            var emptyState = new DFAState(
-                    new Set("ø"),
-                    new Dictionary<string, DFAState>());
+            var emptyState = new DFAState(new Set<string>("ø"));
             foreach (var label in process.Labels)
                 emptyState.Transitions.Add(label, emptyState);
             return emptyState;
         }
 
-        private Dictionary<Set, DFAState> RemoveUncreachableStates(Dictionary<Set, DFAState> states)
+        private Dictionary<Set<string>, DFAState> RemoveUncreachableStates(Dictionary<Set<string>, DFAState> states)
         {
-            Dictionary<Set, DFAState> reachableStates = new Dictionary<Set, DFAState>();
-            List<Set> initialStates = new List<Set>();
+            Dictionary<Set<string>, DFAState> reachableStates = new Dictionary<Set<string>, DFAState>();
+            List<Set<string>> initialStates = new List<Set<string>>();
             foreach (var state in states)
             {
                 if (state.Value.IsInitialState)
@@ -164,7 +162,7 @@ namespace NFAToDFA.PowersetConstructors
                 {
                     if (state.Key != initialState)
                     {
-                        if (CanReach(states, new List<Set>(), initialState, state.Key))
+                        if (CanReach(states, new List<Set<string>>(), initialState, state.Key))
                         {
                             isReachable = true;
                             break;
@@ -178,7 +176,7 @@ namespace NFAToDFA.PowersetConstructors
             return reachableStates;
         }
 
-        private bool CanReach(Dictionary<Set, DFAState> states, List<Set> visited, Set from, Set to)
+        private bool CanReach(Dictionary<Set<string>, DFAState> states, List<Set<string>> visited, Set<string> from, Set<string> to)
         {
             if (from == to)
                 return true;
