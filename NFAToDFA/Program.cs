@@ -69,6 +69,8 @@ namespace NFAToDFA
 
             Console.WriteLine();
             Console.WriteLine($"The resulting DFA was written to: {opts.DFAFile}");
+            Console.WriteLine("Resulting DFA:");
+            Console.WriteLine(dfa.ToString());
         }
 
         static void WriteLineColor(string text, ConsoleColor color)
