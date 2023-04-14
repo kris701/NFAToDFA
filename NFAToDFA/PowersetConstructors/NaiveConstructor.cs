@@ -38,6 +38,9 @@ namespace NFAToDFA.PowersetConstructors
                                     foreach (var toState in nfaState.Transitions[label])
                                         targetStates.Add(toState.Name);
 
+                            if (targetStates.Count == 0)
+                                targetStates.Add(emptyState.Name);
+
                             states[state.Key].Transitions.Add(label, states[targetStates]);
                         }
                     }

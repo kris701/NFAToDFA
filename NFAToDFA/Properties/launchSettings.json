@@ -2,7 +2,7 @@
   "profiles": {
     "NFAToDFA": {
       "commandName": "Project",
-      "commandLineArgs": "--nfa Examples/example1.nfa\r\n--dfa test.dfa"
+      "commandLineArgs": "--nfa Examples/example6.nfa\r\n--dfa test.dfa"
     }
   }
 }
